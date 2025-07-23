@@ -46,11 +46,11 @@ function App() {
   return (
     <div className={`min-h-screen w-screen flex items-center justify-center ${bgMain} text-[#f5ede6] transition-colors duration-500`}>
       <div
-        className={`relative w-[900px] max-w-full mx-auto px-6 py-8 sm:px-24 sm:py-16 ${bgCard} ${shadow} flex flex-col items-center min-h-screen sm:h-[600px]`}
+        className={`relative w-[900px] max-w-full mx-auto px-6 py-8 sm:px-24 sm:py-16 ${bgCard} ${shadow} flex flex-col items-center min-h-screen sm:min-h-0 sm:h-[600px]`}
         style={{ backdropFilter: 'blur(2px)', borderRadius: '0.625rem' }}
       >
 
-        <div className="flex-1 flex flex-col items-center justify-center w-full pt-8 sm:pt-0">
+        <div className="flex-1 flex flex-col items-center justify-center w-full pt-8 pb-8 sm:pt-0 sm:pb-0">
           {!movies.length && !loading && (
             <>
               <div>
@@ -100,11 +100,11 @@ function App() {
             </div>
           )}
           {movies.length > 0 && (
-            <div className="flex flex-col h-full w-full max-h-full">
+            <div className="flex flex-col w-full h-full">
               <div className="flex justify-center items-center mb-4">
                 <div className="text-2xl font-bold text-center">Seen Movies</div>
               </div>
-              <div className="flex-1 min-h-0 max-h-full">
+              <div className="flex-1 min-h-0 mb-4">
                 <ul 
                   className="h-full overflow-y-auto w-full text-left pl-2 pr-2 space-y-2"
                   style={{
@@ -125,7 +125,7 @@ function App() {
                 </ul>
               </div>
               <button
-                className={`mt-6 px-4 py-2 ${accent} ${accentText} font-semibold rounded-lg hover:opacity-90 transition-colors w-full`}
+                className={`px-4 py-2 ${accent} ${accentText} font-semibold rounded-lg hover:opacity-90 transition-colors w-full`}
                 onClick={handleCheckAnother}
               >
                 Roast another "cinephile"
@@ -134,7 +134,7 @@ function App() {
           )}
         </div>
         {/* Footer disclaimer absolutely at the bottom */}
-        <footer className="absolute left-0 right-0 bottom-0 text-[#bfae9f]/60 text-xs tracking-wider text-center w-full max-w-xs mx-auto mb-2 pointer-events-none select-none">
+        <footer className="absolute left-0 right-0 bottom-2 text-[#bfae9f]/60 text-xs tracking-wider text-center w-full max-w-xs mx-auto pointer-events-none select-none">
           By any means affiliated with Letterboxd...
         </footer>
       </div>

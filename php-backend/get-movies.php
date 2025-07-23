@@ -11,38 +11,8 @@ $username = preg_replace('/[^a-zA-Z0-9_\-]/', '', $_GET['username']); // sanitiz
 $baseUrl = "https://letterboxd.com/$username/films/";
 
 $movies = [];
-$lastPage = 1;
-
-// First, fetch the first page and determine the last page number
-$ch = curl_init($baseUrl);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-$html = curl_exec($ch);
-$http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-curl_close($ch);
-
-if ($http_code === 404 || !$html) {
-    echo json_encode(['error' => 'User not found or no films page.']);
-    exit;
-}
-
-libxml_use_internal_errors(true);
-$dom = new DOMDocument();
-$dom->loadHTML($html);
-$xpath = new DOMXPath($dom);
-
-// Find the last page number in the pagination section
-$lastPageNodes = $xpath->query('//div[contains(@class, "paginate-pages")]/a');
-foreach ($lastPageNodes as $node) {
-    $pageNum = intval($node->textContent);
-    if ($pageNum > $lastPage) {
-        $lastPage = $pageNum;
-    }
-}
-
-// Now, loop through all pages from 1 to $lastPage
-for ($page = 1; $page <= $lastPage; $page++) {
+$page = 1;
+while (true) {
     $url = $baseUrl;
     if ($page > 1) {
         $url .= 'page/' . $page . '/';
@@ -59,6 +29,7 @@ for ($page = 1; $page <= $lastPage; $page++) {
         break;
     }
 
+    libxml_use_internal_errors(true);
     $dom = new DOMDocument();
     $dom->loadHTML($html);
     $xpath = new DOMXPath($dom);
@@ -69,6 +40,7 @@ for ($page = 1; $page <= $lastPage; $page++) {
     }
 
     $liNodes = $xpath->query('.//li[contains(@class, "poster-container")]', $ul);
+    $foundAny = false;
     foreach ($liNodes as $li) {
         $posterDiv = $xpath->query('.//div[contains(@class, "film-poster")]', $li)->item(0);
         $title = null;
@@ -95,7 +67,12 @@ for ($page = 1; $page <= $lastPage; $page++) {
                 'rating' => $rating
             ];
         }
+        $foundAny = true;
     }
+    if (!$foundAny || $liNodes->length === 0) {
+        break;
+    }
+    $page++;
 }
 
 if (empty($movies)) {
@@ -103,4 +80,29 @@ if (empty($movies)) {
     exit;
 }
 
-echo json_encode(['movies' => array_values($movies)]); 
+$simple = isset($_GET['simple']) && $_GET['simple'] == '1';
+
+if ($simple) {
+    $simpleMovies = array_map(function($movie) {
+        // Convert rating string (e.g., '★★½') to float
+        $stars = mb_substr_count($movie['rating'], '★');
+        $half = mb_strpos($movie['rating'], '½') !== false ? 0.5 : 0.0;
+        $numericRating = $stars + $half;
+        return [
+            'name' => $movie['title'],
+            'rating' => $numericRating
+        ];
+    }, $movies);
+    $response = [
+        'count' => count($simpleMovies),
+        'movies' => $simpleMovies
+    ];
+    echo json_encode($response);
+    exit;
+}
+
+$response = [
+    'count' => count($movies),
+    'movies' => array_values($movies)
+];
+echo json_encode($response); 

@@ -22,7 +22,7 @@ function App() {
     setMovies([]);
     setLoading(true);
     try {
-      const res = await fetch(`http://localhost:8000/php-backend/get-movies.php?username=${username}`);
+      const res = await fetch(`./php-backend/get-movies.php?username=${username}`);
       const data = await res.json();
       if (data.movies && data.movies.length > 0) {
         setMovies(data.movies);

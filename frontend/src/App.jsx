@@ -44,30 +44,19 @@ function App() {
   };
 
   return (
-    <div className={`min-h-screen w-screen flex items-center justify-center ${bgMain} text-[#f5ede6] transition-colors duration-500`}>
+    <div className={`min-h-screen w-screen flex items-center justify-center ${bgMain} text-[#f5ede6] transition-colors duration-500 overflow-hidden`}>
       <div
-        className={`relative w-[900px] h-[600px] max-w-full max-h-full mx-auto px-12 py-20 sm:px-24 sm:py-32 ${bgCard} ${shadow} flex flex-col justify-between items-center overflow-hidden sm:h-[600px] h-screen`}
+        className={`relative w-[900px] h-[600px] max-w-full max-h-full mx-auto px-12 py-12 sm:px-24 sm:py-16 ${bgCard} ${shadow} flex flex-col items-center sm:h-[600px] h-screen`}
         style={{ backdropFilter: 'blur(2px)', borderRadius: '0.625rem' }}
       >
-        {/* Restart arrow in the top left */}
-        {profileUrl && (
-          <button
-            className={`absolute top-6 left-6 z-20 p-2 rounded-full ${accent} ${accentText} hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-[#bfae9f] transition-colors flex items-center justify-center`}
-            onClick={handleCheckAnother}
-            aria-label="Go back"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="28" height="28" className="w-6 h-6">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-        )}
-        <div className="flex-1 flex flex-col items-start justify-center w-auto">
+
+        <div className="flex-1 flex flex-col items-start justify-center w-auto max-h-full sm:justify-center justify-start pt-8 sm:pt-0 sm:items-start items-center">
           {!movies.length && !loading && (
             <>
               <div>
-                <div className="text-3xl font-bold tracking-normal drop-shadow-lg text-center leading-none">YOUR MOVIE TASTE</div>
-                <div className="text-m font-semibold text-center opacity-80 -mt-2 -mb-4">(probably)</div>
-                <div className="text-8xl font-extrabold tracking-normal drop-shadow-lg text-center leading-none">SUCKS</div>
+                <div className="text-xl sm:text-3xl font-bold tracking-normal drop-shadow-lg text-center leading-none">YOUR MOVIE TASTE</div>
+                <div className="text-sm sm:text-m font-semibold text-center opacity-80 -mt-2 -mb-4">(probably)</div>
+                <div className="text-5xl sm:text-8xl font-extrabold tracking-normal drop-shadow-lg text-center leading-none">SUCKS</div>
               </div>
               <form onSubmit={handleSubmit} className="flex flex-col items-start w-full mt-8">
                 <label htmlFor="username" className="mt-4 mb-1 text-lg font-medium tracking-normal text-center w-full">
@@ -106,32 +95,42 @@ function App() {
           {loading && (
             <div className="text-center w-full">
               <div className="text-2xl font-bold mb-6 text-[#bfae9f]">Loading films for {username}</div>
-              <div className="text-xl opacity-80 mb-8">Whoaaah... You've really seen a lot of movies, do you even have a life?</div>
+              <div className="text-xl opacity-80 mb-8">Whoah... you've really seen a lot of movies, do you even have a life?</div>
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#bfae9f] mx-auto"></div>
             </div>
           )}
           {movies.length > 0 && (
-            <>
-              <div className="text-2xl font-bold mb-4">Seen Movies</div>
-              <ul className="max-h-80 overflow-y-auto w-full text-left pl-4 pr-2">
-                {movies.map((movie, idx) => (
-                  <li key={movie.url} className="mb-2 flex flex-col sm:flex-row sm:items-center gap-2">
-                    <a href={movie.url} target="_blank" rel="noopener noreferrer" className="underline text-[#bfae9f] hover:opacity-80 font-semibold">
-                      {movie.title}
-                    </a>
-                    {movie.rating && (
-                      <span className="ml-2 text-yellow-400 text-base font-mono">{movie.rating}</span>
-                    )}
-                  </li>
-                ))}
-              </ul>
+            <div className="flex flex-col h-full w-full max-h-full">
+              <div className="flex justify-center items-center mb-4">
+                <div className="text-2xl font-bold text-center">Seen Movies</div>
+              </div>
+              <div className="flex-1 min-h-0 max-h-full">
+                <ul 
+                  className="h-full overflow-y-auto w-full text-left pl-2 pr-2 space-y-2"
+                  style={{
+                    scrollbarWidth: 'thin',
+                    scrollbarColor: '#bfae9f rgba(191, 174, 159, 0.1)'
+                  }}
+                >
+                  {movies.map((movie, idx) => (
+                    <li key={movie.url} className="flex items-start gap-2">
+                      <span className="text-[#bfae9f] font-semibold flex-1 min-w-0">
+                        {movie.title}
+                      </span>
+                      {movie.rating && (
+                        <span className="text-yellow-400 text-base font-mono flex-shrink-0">{movie.rating}</span>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
               <button
-                className={`mt-6 px-4 py-2 ${accent} ${accentText} font-semibold rounded-lg hover:opacity-90 transition-colors`}
+                className={`mt-6 px-4 py-2 ${accent} ${accentText} font-semibold rounded-lg hover:opacity-90 transition-colors w-full`}
                 onClick={handleCheckAnother}
               >
-                Check another user
+                Roast another "cinephile"
               </button>
-            </>
+            </div>
           )}
         </div>
         {/* Footer disclaimer absolutely at the bottom */}

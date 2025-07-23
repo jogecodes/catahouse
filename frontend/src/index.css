@@ -2,6 +2,33 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Custom scrollbar styles */
+@layer utilities {
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: rgba(191, 174, 159, 0.1);
+    border-radius: 4px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #bfae9f;
+    border-radius: 4px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #a89a8a;
+  }
+  
+  /* Firefox */
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #bfae9f rgba(191, 174, 159, 0.1);
+  }
+}
+
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -26,42 +53,14 @@ a:hover {
   color: #535bf2;
 }
 
-/* Removed h1 color: black; test rule */
-
 body {
   margin: 0;
   display: flex;
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  overflow: hidden;
 }
-
-/* Removed h1 and button font-size and font-family overrides to avoid interfering with Tailwind */
-/*
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-*/
 
 @media (prefers-color-scheme: light) {
   :root {
@@ -71,7 +70,4 @@ button:focus-visible {
   a:hover {
     color: #747bff;
   }
-  /* button {
-    background-color: #f9f9f9;
-  } */
 }

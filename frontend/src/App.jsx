@@ -44,19 +44,19 @@ function App() {
   };
 
   return (
-    <div className={`min-h-screen w-screen flex items-center justify-center ${bgMain} text-[#f5ede6] transition-colors duration-500 overflow-hidden`}>
+    <div className={`min-h-screen w-screen flex items-center justify-center ${bgMain} text-[#f5ede6] transition-colors duration-500`}>
       <div
-        className={`relative w-[900px] h-[600px] max-w-full max-h-full mx-auto px-12 py-12 sm:px-24 sm:py-16 ${bgCard} ${shadow} flex flex-col items-center sm:h-[600px] h-screen`}
+        className={`relative w-[900px] max-w-full mx-auto px-6 py-8 sm:px-24 sm:py-16 ${bgCard} ${shadow} flex flex-col items-center min-h-screen sm:h-[600px]`}
         style={{ backdropFilter: 'blur(2px)', borderRadius: '0.625rem' }}
       >
 
-        <div className="flex-1 flex flex-col items-start justify-center w-auto max-h-full sm:justify-center justify-start pt-8 sm:pt-0 sm:items-start items-center">
+        <div className="flex-1 flex flex-col items-center justify-center w-full pt-8 sm:pt-0">
           {!movies.length && !loading && (
             <>
               <div>
-                <div className="text-xl sm:text-3xl font-bold tracking-normal drop-shadow-lg text-center leading-none">YOUR MOVIE TASTE</div>
-                <div className="text-sm sm:text-m font-semibold text-center opacity-80 -mt-2 -mb-4">(probably)</div>
-                <div className="text-5xl sm:text-8xl font-extrabold tracking-normal drop-shadow-lg text-center leading-none">SUCKS</div>
+                <div className="text-3xl font-bold tracking-normal drop-shadow-lg text-center leading-none">YOUR MOVIE TASTE</div>
+                <div className="text-m font-semibold text-center opacity-80 -mt-2 -mb-4">(probably)</div>
+                <div className="text-8xl font-extrabold tracking-normal drop-shadow-lg text-center leading-none">SUCKS</div>
               </div>
               <form onSubmit={handleSubmit} className="flex flex-col items-start w-full mt-8">
                 <label htmlFor="username" className="mt-4 mb-1 text-lg font-medium tracking-normal text-center w-full">
@@ -68,7 +68,7 @@ function App() {
                     type="text"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    className={`w-full h-12 h-full px-5 text-[#f5ede6] ${inputBg} shadow-md rounded-l-lg focus:outline-none focus:shadow-inner focus:shadow-md text-lg transition-all duration-200 placeholder:text-[#bfae9f]/60 text-left`}
+                    className={`w-full h-12 px-5 text-[#f5ede6] ${inputBg} shadow-md rounded-l-lg focus:outline-none focus:shadow-inner focus:shadow-md text-lg transition-all duration-200 placeholder:text-[#bfae9f]/60 text-left`}
                     placeholder="e.g. davidlynch"
                     required
                     style={{ letterSpacing: '0.04em', border: 'none', borderTopRightRadius: 0, borderBottomRightRadius: 0 }}

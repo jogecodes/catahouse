@@ -105,8 +105,8 @@ function App() {
           )}
           {loading && (
             <div className="text-center w-full">
-              <div className="text-2xl font-bold mb-6 text-[#bfae9f]">loading films for {username}</div>
-              <div className="text-xl opacity-80 mb-8">whoah... you've really seen a lot of movies, do you even have a life</div>
+              <div className="text-2xl font-bold mb-6 text-[#bfae9f]">Loading films for {username}</div>
+              <div className="text-xl opacity-80 mb-8">Whoaaah... You've really seen a lot of movies, do you even have a life?</div>
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#bfae9f] mx-auto"></div>
             </div>
           )}

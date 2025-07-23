@@ -20,7 +20,7 @@ function App() {
     setProfileUrl('');
     setLoading(true);
     try {
-      const res = await fetch(`http://localhost/php-backend/check-user.php?username=${username}`);
+      const res = await fetch(`http://localhost:8000/php-backend/check-user.php?username=${username}`);
       const data = await res.json();
       if (data.exists) {
         setProfileUrl(data.url);

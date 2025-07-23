@@ -1,0 +1,1 @@
+-> Mirar si podemos balancear la popularidad de una película en base al país

@@ -62,7 +62,7 @@ function App() {
           </button>
         )}
         <div className="flex-1 flex flex-col items-start justify-center w-auto">
-          {!movies.length && (
+          {!movies.length && !loading && (
             <>
               <div>
                 <div className="text-3xl font-bold tracking-normal drop-shadow-lg text-center leading-none">YOUR MOVIE TASTE</div>
@@ -104,9 +104,10 @@ function App() {
             </>
           )}
           {loading && (
-            <div className="text-center">
-              <div className="text-2xl font-bold mb-4 text-[#bfae9f]">whoah you've really watched a lot of movies</div>
-              <div className="text-lg opacity-80">Loading your rated movies...</div>
+            <div className="text-center w-full">
+              <div className="text-2xl font-bold mb-6 text-[#bfae9f]">loading films for {username}</div>
+              <div className="text-xl opacity-80 mb-8">whoah... you've really seen a lot of movies, do you even have a life</div>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#bfae9f] mx-auto"></div>
             </div>
           )}
           {movies.length > 0 && (

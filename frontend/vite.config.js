@@ -13,5 +13,13 @@ export default defineConfig({
       }
     }
   },
-  publicDir: false
+  publicDir: false,
+  server: {
+    proxy: {
+      '/php-backend': {
+        target: 'http://localhost:8000',
+        changeOrigin: true
+      }
+    }
+  }
 })

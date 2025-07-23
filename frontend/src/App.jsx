@@ -46,7 +46,7 @@ function App() {
   return (
     <div className={`min-h-screen w-screen flex items-center justify-center ${bgMain} text-[#f5ede6] transition-colors duration-500`}>
       <div
-        className={`relative w-[900px] h-[600px] max-w-full max-h-full mx-auto px-12 py-20 sm:px-24 sm:py-32 ${bgCard} ${shadow} flex flex-col justify-between items-center overflow-hidden`}
+        className={`relative w-[900px] h-[600px] max-w-full max-h-full mx-auto px-12 py-20 sm:px-24 sm:py-32 ${bgCard} ${shadow} flex flex-col justify-between items-center overflow-hidden sm:h-[600px] h-screen`}
         style={{ backdropFilter: 'blur(2px)', borderRadius: '0.625rem' }}
       >
         {/* Restart arrow in the top left */}
@@ -62,7 +62,7 @@ function App() {
           </button>
         )}
         <div className="flex-1 flex flex-col items-start justify-center w-auto">
-          {!movies.length ? (
+          {!movies.length && (
             <>
               <div>
                 <div className="text-3xl font-bold tracking-normal drop-shadow-lg text-center leading-none">YOUR MOVIE TASTE</div>
@@ -102,7 +102,14 @@ function App() {
                 </div>
               </form>
             </>
-          ) : (
+          )}
+          {loading && (
+            <div className="text-center">
+              <div className="text-2xl font-bold mb-4 text-[#bfae9f]">whoah you've really watched a lot of movies</div>
+              <div className="text-lg opacity-80">Loading your rated movies...</div>
+            </div>
+          )}
+          {movies.length > 0 && (
             <>
               <div className="text-2xl font-bold mb-4">Seen Movies</div>
               <ul className="max-h-80 overflow-y-auto w-full text-left pl-4 pr-2">

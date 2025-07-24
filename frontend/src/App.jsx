@@ -46,10 +46,10 @@ function App() {
   return (
     <div className={`min-h-screen w-screen flex items-center justify-center ${bgMain} text-[#f5ede6] transition-colors duration-500`}>
       <div
-        className={`relative w-[900px] max-w-full mx-auto px-6 py-8 sm:px-24 sm:py-16 flex flex-col items-center min-h-screen sm:min-h-0 sm:h-[600px] pb-8 sm:pb-16`}
+        className={`relative w-[900px] max-w-full mx-auto px-6 sm:px-24 sm:py-16 flex flex-col items-center h-full`}
       >
 
-        <div className="flex-1 flex flex-col items-center justify-center w-full pt-8 pb-8 sm:pt-0 sm:pb-0 h-full">
+        <div className="flex-1 flex flex-col items-center justify-center w-full pt-8 sm:pt-0 sm:pb-0 h-full">
           {!movies.length && !loading && (
             <>
               <div>
@@ -103,9 +103,9 @@ function App() {
               <div className="flex justify-center items-center mb-4">
                 <div className="text-2xl font-bold text-center">Seen Movies</div>
               </div>
-              <div className="flex-1 min-h-0 mb-4 max-h-full overflow-hidden">
+              <div className="mb-4" style={{ height: '50vh' }}>
                 <ul 
-                  className="h-full overflow-y-auto w-full text-left pl-2 pr-2 space-y-2 custom-scrollbar"
+                  className="overflow-y-auto w-full text-left pl-2 pr-2 space-y-2 custom-scrollbar h-full"
                   style={{
                     scrollbarWidth: 'thin',
                     scrollbarColor: '#bfae9f rgba(191, 174, 159, 0.1)'
@@ -132,8 +132,8 @@ function App() {
             </div>
           )}
         </div>
-        {/* Footer disclaimer absolutely at the bottom */}
-        <footer className="absolute left-0 right-0 bottom-8 text-[#bfae9f]/60 text-xs tracking-wider text-center w-full max-w-xs mx-auto pointer-events-none select-none">
+        {/* Footer disclaimer at the bottom */}
+        <footer className="mt-4 text-[#bfae9f]/60 text-xs tracking-wider text-center w-full max-w-xs mx-auto pointer-events-none select-none">
           By any means affiliated with Letterboxd...
         </footer>
       </div>

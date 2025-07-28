@@ -32,7 +32,8 @@ client.on('ready', () => {
     const filesToUpload = [
       { local: '../index.html', remote: 'index.html' },
       { local: '../assets', remote: 'assets', isDir: true },
-      { local: '../.htaccess', remote: '.htaccess' }
+      { local: '../.htaccess', remote: '.htaccess' },
+      { local: '../php-backend', remote: 'php-backend', isDir: true }
     ];
 
     let uploadedCount = 0;

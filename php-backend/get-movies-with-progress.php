@@ -13,14 +13,28 @@ if (!isset($_GET['username'])) {
 $username = preg_replace('/[^a-zA-Z0-9_\-]/', '', $_GET['username']); // sanitize
 $baseUrl = "https://letterboxd.com/$username/films/by/entry-rating/";
 
+// First, get the total count to calculate progress
+$userUrl = "https://letterboxd.com/$username/";
+$ch = curl_init($userUrl);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (compatible; MovieCounter/1.0)');
+curl_setopt($ch, CURLOPT_ENCODING, 'gzip,deflate');
+curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+$html = curl_exec($ch);
+curl_close($ch);
+
+$totalMovies = 0;
+if (preg_match('/class="all-link"[^>]*>.*?(\d+)/s', $html, $matches)) {
+    $totalMovies = (int)$matches[1];
+}
+
 $movies = [];
 $page = 1;
-$totalPages = 0;
-$currentProgress = 0;
-
-// Calculate total pages based on 72 movies per page
-// We'll estimate this for progress tracking
-$estimatedMoviesPerPage = 72;
+$moviesPerPage = 72;
+$totalPages = ceil($totalMovies / $moviesPerPage);
 
 while (true) {
     $url = $baseUrl;
@@ -106,17 +120,22 @@ if ($simple) {
             'rating' => $numericRating
         ];
     }, $movies);
+    
     // Calculate execution time
-$endTime = microtime(true);
-$executionTime = round(($endTime - $startTime) * 1000, 2);
+    $endTime = microtime(true);
+    $executionTime = round(($endTime - $startTime) * 1000, 2);
 
-$response = [
-    'count' => count($simpleMovies),
-    'execution_time_ms' => $executionTime,
-    'movies' => $simpleMovies
-];
-echo json_encode($response);
-exit;
+    $response = [
+        'count' => count($simpleMovies),
+        'execution_time_ms' => $executionTime,
+        'total_movies' => $totalMovies,
+        'pages_scraped' => $page - 1,
+        'total_pages' => $totalPages,
+        'progress_percentage' => round(($page - 1) / $totalPages * 100, 1),
+        'movies' => $simpleMovies
+    ];
+    echo json_encode($response);
+    exit;
 }
 
 // Calculate execution time
@@ -126,6 +145,11 @@ $executionTime = round(($endTime - $startTime) * 1000, 2);
 $response = [
     'count' => count($movies),
     'execution_time_ms' => $executionTime,
+    'total_movies' => $totalMovies,
+    'pages_scraped' => $page - 1,
+    'total_pages' => $totalPages,
+    'progress_percentage' => round(($page - 1) / $totalPages * 100, 1),
     'movies' => array_values($movies)
 ];
-echo json_encode($response); 
+echo json_encode($response);
+?> 

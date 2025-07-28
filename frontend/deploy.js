@@ -31,7 +31,8 @@ client.on('ready', () => {
 
     const filesToUpload = [
       { local: '../index.html', remote: 'index.html' },
-      { local: '../assets', remote: 'assets', isDir: true }
+      { local: '../assets', remote: 'assets', isDir: true },
+      { local: '../.htaccess', remote: '.htaccess' }
     ];
 
     let uploadedCount = 0;

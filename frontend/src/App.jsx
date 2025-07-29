@@ -9,6 +9,7 @@ function App() {
   const [movies, setMovies] = useState([]);
   const [progress, setProgress] = useState(0);
   const [progressData, setProgressData] = useState(null);
+  const [graphData, setGraphData] = useState(null);
 
   // Custom color palette
   const bgMain = 'bg-[#181210]'; // very dark background
@@ -22,10 +23,11 @@ function App() {
     e.preventDefault();
     setError('');
     setProfileUrl('');
-    setMovies([]);
+        setMovies([]);
     setProgress(0);
     setProgressData(null);
-        setLoading(true);
+    setGraphData(null);
+    setLoading(true);
     
             // Start with initial progress
     setProgress(5);
@@ -71,6 +73,8 @@ function App() {
               currentPage: data.total_pages,
               totalPages: data.total_pages
             });
+            // Save complete graph data
+            setGraphData(data);
             eventSource.close();
             setLoading(false);
           } else if (data.type === 'error') {
@@ -98,6 +102,7 @@ function App() {
                 ...prev,
                 executionTime: data.execution_time_ms
               }));
+              setGraphData(data);
               setLoading(false);
             } else if (data.error) {
               setError(data.error);
@@ -124,6 +129,7 @@ function App() {
     setUsername('');
     setProgress(0);
     setProgressData(null);
+    setGraphData(null);
   };
 
   return (
@@ -216,6 +222,22 @@ function App() {
                       )}
                     </li>
                   ))}
+                  
+                  {/* JSON Data integrated in the same list */}
+                  {graphData && (
+                    <>
+                      <li className="pt-4 pb-2">
+                        <div className="text-lg font-semibold text-[#bfae9f] text-center border-t border-[#bfae9f]/20 pt-4">
+                          Complete Analysis Data
+                        </div>
+                      </li>
+                      <li>
+                        <pre className="text-xs text-[#f5ede6] whitespace-pre-wrap font-mono">
+                          {JSON.stringify(graphData, null, 2)}
+                        </pre>
+                      </li>
+                    </>
+                  )}
                 </ul>
               </div>
               <button

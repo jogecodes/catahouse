@@ -126,17 +126,15 @@ while (true) {
         }
     }
     
-    // Calculate progress based on current page
-    $progress = min(90, 5 + (($page / $totalPages) * 85));
+    // Calculate progress based on current page (first 50%)
+    $progress = min(50, 5 + (($page / $totalPages) * 45));
     
     // Send progress update
     echo "data: " . json_encode([
         'type' => 'progress',
         'progress' => round($progress, 1),
-        'page' => $page,
-        'total_pages' => $totalPages,
         'movies_found' => count($movies),
-        'message' => "Analyzed page $page of $totalPages"
+        'message' => "Fetching all movies..."
     ]) . "\n\n";
     
     if ($liNodes->length === 0) {
@@ -152,6 +150,13 @@ if (empty($movies)) {
     ]) . "\n\n";
     exit;
 }
+
+// Send progress update after fetching all movies (50%)
+echo "data: " . json_encode([
+    'type' => 'progress',
+    'progress' => 50,
+    'message' => 'All movies fetched! Analyzing categories...'
+]) . "\n\n";
 
 // Now get the most popular movies
 $popularUrl = "https://letterboxd.com/$username/films/by/popular/";
@@ -211,6 +216,13 @@ if ($http_code !== 404 && $popularHtml) {
         }
     }
 }
+
+// Send progress update after most popular (55%)
+echo "data: " . json_encode([
+    'type' => 'progress',
+    'progress' => 55,
+    'message' => 'Most popular movies analyzed'
+]) . "\n\n";
 
 // Now get the least popular movies (from the last page)
 $leastPopularMovies = [];
@@ -279,6 +291,13 @@ if ($totalPages > 0) {
     }
 }
 
+// Send progress update after least popular (60%)
+echo "data: " . json_encode([
+    'type' => 'progress',
+    'progress' => 60,
+    'message' => 'Least popular movies analyzed'
+]) . "\n\n";
+
 // Now get the most recent movies (from /films/by/date/)
 $recentMovies = [];
 $recentUrl = "https://letterboxd.com/$username/films/by/date/";
@@ -337,6 +356,13 @@ if ($http_code !== 404 && $recentHtml) {
         }
     }
 }
+
+// Send progress update after most recent (65%)
+echo "data: " . json_encode([
+    'type' => 'progress',
+    'progress' => 65,
+    'message' => 'Most recent movies analyzed'
+]) . "\n\n";
 
 // Now get the least recent movies (from the last page of /films/by/date/)
 $leastRecentMovies = [];
@@ -400,6 +426,13 @@ if ($totalPages > 0) {
     }
 }
 
+// Send progress update after least recent (70%)
+echo "data: " . json_encode([
+    'type' => 'progress',
+    'progress' => 70,
+    'message' => 'Least recent movies analyzed'
+]) . "\n\n";
+
 // Now get the most recent release movies (from /films/)
 $mostRecentReleaseMovies = [];
 $recentReleaseUrl = "https://letterboxd.com/$username/films/";
@@ -458,6 +491,13 @@ if ($http_code !== 404 && $recentReleaseHtml) {
         }
     }
 }
+
+// Send progress update after most recent release (75%)
+echo "data: " . json_encode([
+    'type' => 'progress',
+    'progress' => 75,
+    'message' => 'Most recent release movies analyzed'
+]) . "\n\n";
 
 // Now get the least recent release movies (from the last page of /films/)
 $leastRecentReleaseMovies = [];
@@ -521,6 +561,13 @@ if ($totalPages > 0) {
     }
 }
 
+// Send progress update after least recent release (80%)
+echo "data: " . json_encode([
+    'type' => 'progress',
+    'progress' => 80,
+    'message' => 'Least recent release movies analyzed'
+]) . "\n\n";
+
 // Now get the best community rated movies (from /films/by/rating/)
 $bestCommunityRateMovies = [];
 $bestCommunityUrl = "https://letterboxd.com/$username/films/by/rating/";
@@ -579,6 +626,13 @@ if ($http_code !== 404 && $bestCommunityHtml) {
         }
     }
 }
+
+// Send progress update after best community rate (85%)
+echo "data: " . json_encode([
+    'type' => 'progress',
+    'progress' => 85,
+    'message' => 'Best community rated movies analyzed'
+]) . "\n\n";
 
 // Now get the worst community rated movies (from the last page of /films/by/rating/)
 $worstCommunityRateMovies = [];
@@ -642,6 +696,13 @@ if ($totalPages > 0) {
     }
 }
 
+// Send progress update after worst community rate (90%)
+echo "data: " . json_encode([
+    'type' => 'progress',
+    'progress' => 90,
+    'message' => 'Worst community rated movies analyzed'
+]) . "\n\n";
+
 // Now get the best user rated movies (from /films/by/entry-rating/)
 $bestUserRateMovies = [];
 $bestUserUrl = "https://letterboxd.com/$username/films/by/entry-rating/";
@@ -700,6 +761,13 @@ if ($http_code !== 404 && $bestUserHtml) {
         }
     }
 }
+
+// Send progress update after best user rate (95%)
+echo "data: " . json_encode([
+    'type' => 'progress',
+    'progress' => 95,
+    'message' => 'Best user rated movies analyzed'
+]) . "\n\n";
 
 // Now get the worst user rated movies (from the last page of /films/by/entry-rating/)
 $worstUserRateMovies = [];
@@ -762,6 +830,13 @@ if ($totalPages > 0) {
         }
     }
 }
+
+// Send progress update after worst user rate (100%)
+echo "data: " . json_encode([
+    'type' => 'progress',
+    'progress' => 100,
+    'message' => 'Worst user rated movies analyzed - Complete!'
+]) . "\n\n";
 
 // Calculate execution time
 $endTime = microtime(true);

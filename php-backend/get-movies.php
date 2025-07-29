@@ -13,14 +13,34 @@ if (!isset($_GET['username'])) {
 $username = preg_replace('/[^a-zA-Z0-9_\-]/', '', $_GET['username']); // sanitize
 $baseUrl = "https://letterboxd.com/$username/films/by/entry-rating/";
 
+// First, get the total number of movies with ratings
+$countUrl = "https://letterboxd.com/$username/";
+$ch = curl_init($countUrl);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 2);
+curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (compatible; MovieCounter/1.0)');
+curl_setopt($ch, CURLOPT_ENCODING, '');
+$countHtml = curl_exec($ch);
+curl_close($ch);
+
+// Extract total movies from the count page
+$totalMovies = 0;
+if (preg_match('/(\d+)\s+films?\s+watched/i', $countHtml, $matches)) {
+    $totalMovies = (int)$matches[1];
+}
+
 $movies = [];
 $page = 1;
 $totalPages = 0;
 $currentProgress = 0;
 
 // Calculate total pages based on 72 movies per page
-// We'll estimate this for progress tracking
 $estimatedMoviesPerPage = 72;
+
+// Calculate total pages based on the total movies we expect
+$totalPages = ceil($totalMovies / $estimatedMoviesPerPage);
 
 while (true) {
     $url = $baseUrl;
@@ -112,6 +132,8 @@ $executionTime = round(($endTime - $startTime) * 1000, 2);
 
 $response = [
     'count' => count($simpleMovies),
+    'total_movies' => $totalMovies,
+    'total_pages' => $totalPages,
     'execution_time_ms' => $executionTime,
     'movies' => $simpleMovies
 ];
@@ -125,6 +147,8 @@ $executionTime = round(($endTime - $startTime) * 1000, 2);
 
 $response = [
     'count' => count($movies),
+    'total_movies' => $totalMovies,
+    'total_pages' => $totalPages,
     'execution_time_ms' => $executionTime,
     'movies' => array_values($movies)
 ];

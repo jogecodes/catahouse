@@ -27,6 +27,15 @@
     scrollbar-width: thin;
     scrollbar-color: #bfae9f rgba(191, 174, 159, 0.1);
   }
+  
+  /* Animation delays for progress dots */
+  .animation-delay-200 {
+    animation-delay: 200ms;
+  }
+  
+  .animation-delay-400 {
+    animation-delay: 400ms;
+  }
 }
 
 :root {

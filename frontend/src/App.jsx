@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import ProgressBar from './components/ProgressBar';
 
 function App() {
   const [username, setUsername] = useState('');
@@ -6,6 +7,8 @@ function App() {
   const [profileUrl, setProfileUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [movies, setMovies] = useState([]);
+  const [progress, setProgress] = useState(0);
+  const [progressData, setProgressData] = useState(null);
 
   // Custom color palette
   const bgMain = 'bg-[#181210]'; // very dark background
@@ -20,27 +23,106 @@ function App() {
     setError('');
     setProfileUrl('');
     setMovies([]);
-    setLoading(true);
+    setProgress(0);
+    setProgressData(null);
+        setLoading(true);
+    
+            // Start with initial progress
+    setProgress(5);
+    
     try {
-      const res = await fetch(`./php-backend/get-movies.php?username=${username}`);
-      const data = await res.json();
-      if (data.movies && data.movies.length > 0) {
-        setMovies(data.movies);
-      } else if (data.error) {
-        setError(data.error);
-      } else {
-        setError('No movies found.');
+      // First get the total count from count-movies.php
+      const countRes = await fetch(`https://yourmovietasteprobablysucks.com/php-backend/count-movies.php?username=${username}`);
+      const countData = await countRes.json();
+      
+      if (countData.success) {
+        // Set progress data with real total immediately
+        setProgressData({
+          totalMovies: countData.total_movies,
+          executionTime: 0,
+          message: 'Starting to scrape movies...'
+        });
       }
+      
+            // Use Server-Sent Events for real progress
+      const eventSource = new EventSource(`https://yourmovietasteprobablysucks.com/php-backend/get-movies-with-progress.php?username=${username}&simple=1`);
+      
+      eventSource.onmessage = function(event) {
+        try {
+          const data = JSON.parse(event.data);
+          
+          if (data.type === 'progress') {
+            // Update progress with real data (but keep original totalMovies)
+            setProgress(data.progress);
+            setProgressData(prev => ({
+              ...prev,
+              executionTime: 0,
+              currentPage: data.page,
+              totalPages: data.total_pages,
+              message: data.message
+            }));
+          } else if (data.type === 'complete') {
+            setMovies(data.movies);
+            setProgress(100);
+            setProgressData({
+              totalMovies: data.total_movies,
+              executionTime: data.execution_time_ms,
+              currentPage: data.total_pages,
+              totalPages: data.total_pages
+            });
+            eventSource.close();
+            setLoading(false);
+          } else if (data.type === 'error') {
+            setError(data.error);
+            eventSource.close();
+            setLoading(false);
+          }
+        } catch (err) {
+          console.error('Error parsing SSE data:', err);
+        }
+      };
+      
+      eventSource.onerror = function(event) {
+        console.log('EventSource failed, using fallback');
+        eventSource.close();
+        
+        // Fallback to regular fetch
+        fetch(`https://yourmovietasteprobablysucks.com/php-backend/get-movies.php?username=${username}&simple=1`)
+          .then(res => res.json())
+          .then(data => {
+            if (data.movies && data.movies.length > 0) {
+              setMovies(data.movies);
+              setProgress(100);
+              setProgressData(prev => ({
+                ...prev,
+                executionTime: data.execution_time_ms
+              }));
+              setLoading(false);
+            } else if (data.error) {
+              setError(data.error);
+              setLoading(false);
+            } else {
+              setError('No movies found.');
+              setLoading(false);
+            }
+          })
+          .catch(err => {
+            setError('Network error.');
+            setLoading(false);
+          });
+      };
     } catch (err) {
       setError('Network error.');
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const handleCheckAnother = () => {
     setProfileUrl('');
     setMovies([]);
     setUsername('');
+    setProgress(0);
+    setProgressData(null);
   };
 
   return (
@@ -95,7 +177,19 @@ function App() {
             <div className="text-center w-full">
               <div className="text-2xl font-bold mb-6 text-[#bfae9f]">Loading films for {username}</div>
               <div className="text-xl opacity-80 mb-8">Whoah... you've really watched a lot of movies, do you even have a life?</div>
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#bfae9f] mx-auto"></div>
+              
+              {progressData ? (
+                <ProgressBar
+                  progress={progress}
+                  totalMovies={progressData.totalMovies}
+                  executionTime={progressData.executionTime}
+                  currentPage={progressData.currentPage}
+                  totalPages={progressData.totalPages}
+                  message={progressData.message}
+                />
+              ) : (
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#bfae9f] mx-auto"></div>
+              )}
             </div>
           )}
           {movies.length > 0 && (

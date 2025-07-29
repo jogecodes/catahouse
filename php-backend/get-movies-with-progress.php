@@ -1,40 +1,58 @@
 <?php
 header('Access-Control-Allow-Origin: *');
-header('Content-Type: application/json');
+header('Content-Type: text/event-stream');
+header('Cache-Control: no-cache');
+header('Connection: keep-alive');
 
 // Start timing
 $startTime = microtime(true);
 
 if (!isset($_GET['username'])) {
-    echo json_encode(['error' => 'No username provided']);
+    echo "data: " . json_encode(['error' => 'No username provided']) . "\n\n";
     exit;
 }
 
 $username = preg_replace('/[^a-zA-Z0-9_\-]/', '', $_GET['username']); // sanitize
 $baseUrl = "https://letterboxd.com/$username/films/by/entry-rating/";
 
-// First, get the total count to calculate progress
-$userUrl = "https://letterboxd.com/$username/";
-$ch = curl_init($userUrl);
+// First, get the total number of movies with ratings
+$countUrl = "https://letterboxd.com/$username/";
+$ch = curl_init($countUrl);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 2);
 curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (compatible; MovieCounter/1.0)');
-curl_setopt($ch, CURLOPT_ENCODING, 'gzip,deflate');
-curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-$html = curl_exec($ch);
+curl_setopt($ch, CURLOPT_ENCODING, '');
+$countHtml = curl_exec($ch);
 curl_close($ch);
 
+// Extract total movies from the count page
 $totalMovies = 0;
-if (preg_match('/class="all-link"[^>]*>.*?(\d+)/s', $html, $matches)) {
+if (preg_match('/(\d+)\s+films?\s+watched/i', $countHtml, $matches)) {
     $totalMovies = (int)$matches[1];
 }
 
 $movies = [];
 $page = 1;
-$moviesPerPage = 72;
-$totalPages = ceil($totalMovies / $moviesPerPage);
+$totalPages = 0;
+$currentProgress = 0;
+
+// Calculate total pages based on 72 movies per page
+$estimatedMoviesPerPage = 72;
+
+// Calculate total pages based on the total movies we expect
+$totalPages = ceil($totalMovies / $estimatedMoviesPerPage);
+
+// Send initial progress
+echo "data: " . json_encode([
+    'type' => 'progress',
+    'progress' => 5,
+    'page' => 0,
+    'total_pages' => $totalPages,
+    'total_movies' => $totalMovies,
+    'message' => 'Starting to scrape movies...'
+]) . "\n\n";
 
 while (true) {
     $url = $baseUrl;
@@ -96,6 +114,19 @@ while (true) {
         }
     }
     
+    // Calculate progress based on current page
+    $progress = min(90, 5 + (($page / $totalPages) * 85));
+    
+    // Send progress update
+    echo "data: " . json_encode([
+        'type' => 'progress',
+        'progress' => round($progress, 1),
+        'page' => $page,
+        'total_pages' => $totalPages,
+        'movies_found' => count($movies),
+        'message' => "Scraped page $page of $totalPages"
+    ]) . "\n\n";
+    
     if ($liNodes->length === 0) {
         break;
     }
@@ -103,7 +134,10 @@ while (true) {
 }
 
 if (empty($movies)) {
-    echo json_encode(['error' => 'No rated movies found for this user']);
+    echo "data: " . json_encode([
+        'type' => 'error',
+        'error' => 'No rated movies found for this user'
+    ]) . "\n\n";
     exit;
 }
 
@@ -111,13 +145,9 @@ $simple = isset($_GET['simple']) && $_GET['simple'] == '1';
 
 if ($simple) {
     $simpleMovies = array_map(function($movie) {
-        // Convert rating string (e.g., '★★½') to float
-        $stars = mb_substr_count($movie['rating'], '★');
-        $half = mb_strpos($movie['rating'], '½') !== false ? 0.5 : 0.0;
-        $numericRating = $stars + $half;
         return [
-            'name' => $movie['title'],
-            'rating' => $numericRating
+            'title' => $movie['title'],
+            'rating' => $movie['rating']
         ];
     }, $movies);
     
@@ -125,16 +155,15 @@ if ($simple) {
     $endTime = microtime(true);
     $executionTime = round(($endTime - $startTime) * 1000, 2);
 
-    $response = [
+    // Send final result
+    echo "data: " . json_encode([
+        'type' => 'complete',
         'count' => count($simpleMovies),
-        'execution_time_ms' => $executionTime,
         'total_movies' => $totalMovies,
-        'pages_scraped' => $page - 1,
         'total_pages' => $totalPages,
-        'progress_percentage' => round(($page - 1) / $totalPages * 100, 1),
+        'execution_time_ms' => $executionTime,
         'movies' => $simpleMovies
-    ];
-    echo json_encode($response);
+    ]) . "\n\n";
     exit;
 }
 
@@ -142,14 +171,13 @@ if ($simple) {
 $endTime = microtime(true);
 $executionTime = round(($endTime - $startTime) * 1000, 2);
 
-$response = [
+// Send final result
+echo "data: " . json_encode([
+    'type' => 'complete',
     'count' => count($movies),
-    'execution_time_ms' => $executionTime,
     'total_movies' => $totalMovies,
-    'pages_scraped' => $page - 1,
     'total_pages' => $totalPages,
-    'progress_percentage' => round(($page - 1) / $totalPages * 100, 1),
+    'execution_time_ms' => $executionTime,
     'movies' => array_values($movies)
-];
-echo json_encode($response);
+]) . "\n\n";
 ?> 

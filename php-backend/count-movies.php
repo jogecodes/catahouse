@@ -35,18 +35,43 @@ if ($http_code === 404 || !$html) {
     exit;
 }
 
+// Find the ratings count in the user's main page
 libxml_use_internal_errors(true);
 $dom = new DOMDocument();
 $dom->loadHTML($html);
 $xpath = new DOMXPath($dom);
 
-// Ultra-fast regex search for the ratings count
-// Look for patterns like "all (150)" or "150" in the ratings section
-if (preg_match('/class="all-link"[^>]*>.*?(\d+)/s', $html, $matches)) {
-    $totalMovies = (int)$matches[1];
-} else {
-    // Fallback: try to find any number near "all" or "ratings"
-    if (preg_match('/(?:all|ratings).*?(\d+)/i', $html, $matches)) {
+$totalMovies = 0;
+
+// Look for the ratings section and extract the count
+// Try to find the link to "films by entry-rating" which contains the total count
+$ratingLinks = $xpath->query('//a[contains(@href, "/films/by/entry-rating/")]');
+if ($ratingLinks->length > 0) {
+    foreach ($ratingLinks as $link) {
+        $href = $link->getAttribute('href');
+        // Look for text that contains a number followed by "films" or similar
+        $text = trim($link->textContent);
+        if (preg_match('/(\d+)/', $text, $matches)) {
+            $totalMovies = (int)$matches[1];
+            break;
+        }
+    }
+}
+
+// If we didn't find it in the link text, try to find it in the ratings histogram section
+if ($totalMovies === 0) {
+    $ratingsSection = $xpath->query('//section[contains(@class, "ratings-histogram-chart")]');
+    if ($ratingsSection->length > 0) {
+        $sectionText = $ratingsSection->item(0)->textContent;
+        if (preg_match('/(\d+)\s+films?\s+rated/i', $sectionText, $matches)) {
+            $totalMovies = (int)$matches[1];
+        }
+    }
+}
+
+// If still not found, try to find any number near "ratings" or "films"
+if ($totalMovies === 0) {
+    if (preg_match('/(\d+)\s+films?\s+watched/i', $html, $matches)) {
         $totalMovies = (int)$matches[1];
     }
 }
@@ -61,7 +86,7 @@ $response = [
     'count' => $totalMovies,
     'execution_time_ms' => $executionTime,
     'success' => true,
-    'source' => 'ratings_histogram'
+    'source' => 'ratings_section'
 ];
 
 if ($totalMovies === 0) {
@@ -72,7 +97,7 @@ if ($totalMovies === 0) {
         'execution_time_ms' => $executionTime,
         'success' => false,
         'error' => 'No rated movies found for this user',
-        'source' => 'ratings_histogram'
+        'source' => 'ratings_section'
     ];
 }
 

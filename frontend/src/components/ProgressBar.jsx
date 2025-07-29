@@ -15,13 +15,9 @@ const ProgressBar = ({ progress, totalMovies, executionTime, currentPage, totalP
       
       {/* Progress Details */}
       <div className="text-center space-y-2">
-                          <div className="text-2xl font-bold text-[#bfae9f]">
-                    {Math.min(progress, 100).toFixed(1)}%
-                  </div>
-        
-                            <div className="text-sm opacity-80 space-y-1">
-                      <div>Movies: {totalMovies} total</div>
-                    </div>
+                                  <div className="text-2xl font-bold text-[#bfae9f]">
+          {Math.min(progress, 100).toFixed(1)}%
+        </div>
         
         {/* Loading Animation */}
         <div className="flex justify-center mt-4">

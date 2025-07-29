@@ -251,7 +251,7 @@ function App() {
         </div>
         {/* Footer disclaimer at the bottom */}
         <footer className="mt-4 text-[#bfae9f]/60 text-xs tracking-wider text-center w-full max-w-xs mx-auto pointer-events-none select-none">
-          By any means affiliated with Letterboxd...
+          (By any means affiliated with Letterboxd)
         </footer>
       </div>
     </div>

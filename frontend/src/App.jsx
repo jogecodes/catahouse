@@ -45,7 +45,7 @@ function App() {
       }
       
             // Use Server-Sent Events for real progress
-      const eventSource = new EventSource(`https://yourmovietasteprobablysucks.com/php-backend/get-movies-with-progress.php?username=${username}&simple=1`);
+      const eventSource = new EventSource(`https://yourmovietasteprobablysucks.com/php-backend/get-graph-data.php?username=${username}`);
       
       eventSource.onmessage = function(event) {
         try {
@@ -62,7 +62,8 @@ function App() {
               message: data.message
             }));
           } else if (data.type === 'complete') {
-            setMovies(data.movies);
+            // Use all_movies from graph data
+            setMovies(data.all_movies);
             setProgress(100);
             setProgressData({
               totalMovies: data.total_movies,
@@ -87,11 +88,11 @@ function App() {
         eventSource.close();
         
         // Fallback to regular fetch
-        fetch(`https://yourmovietasteprobablysucks.com/php-backend/get-movies.php?username=${username}&simple=1`)
+        fetch(`https://yourmovietasteprobablysucks.com/php-backend/get-graph-data.php?username=${username}`)
           .then(res => res.json())
           .then(data => {
-            if (data.movies && data.movies.length > 0) {
-              setMovies(data.movies);
+            if (data.all_movies && data.all_movies.length > 0) {
+              setMovies(data.all_movies);
               setProgress(100);
               setProgressData(prev => ({
                 ...prev,
@@ -210,8 +211,8 @@ function App() {
                       <span className="text-[#bfae9f] font-semibold flex-1 min-w-0">
                         {movie.title}
                       </span>
-                      {movie.rating && (
-                        <span className="text-yellow-400 text-base font-mono flex-shrink-0">{movie.rating}</span>
+                      {movie.user_rating && (
+                        <span className="text-yellow-400 text-base font-mono flex-shrink-0">{movie.user_rating}</span>
                       )}
                     </li>
                   ))}

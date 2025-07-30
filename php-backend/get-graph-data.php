@@ -6,8 +6,6 @@ define('N_MOST_RECENT', 5);
 define('N_LEAST_RECENT', 5);
 define('N_MOST_RECENT_RELEASE', 5);
 define('N_LEAST_RECENT_RELEASE', 5);
-define('N_BEST_COMMUNITY_RATE', 5);
-define('N_WORST_COMMUNITY_RATE', 5);
 define('N_BEST_USER_RATE', 5);
 define('N_WORST_USER_RATE', 5);
 
@@ -19,13 +17,32 @@ header('Connection: keep-alive');
 // Start timing
 $startTime = microtime(true);
 
+// Function to convert star rating to numeric score
+function convertRatingToScore($rating) {
+    // Convert star ratings to numeric scores
+    $ratingMap = [
+        '★★★★★' => 5.0,
+        '★★★★½' => 4.5,
+        '★★★★' => 4.0,
+        '★★★½' => 3.5,
+        '★★★' => 3.0,
+        '★★½' => 2.5,
+        '★★' => 2.0,
+        '★½' => 1.5,
+        '★' => 1.0,
+        '½' => 0.5,
+    ];
+    
+    return isset($ratingMap[$rating]) ? $ratingMap[$rating] : 0.0;
+}
+
 if (!isset($_GET['username'])) {
     echo "data: " . json_encode(['error' => 'No username provided']) . "\n\n";
     exit;
 }
 
 $username = preg_replace('/[^a-zA-Z0-9_\-]/', '', $_GET['username']); // sanitize
-$baseUrl = "https://letterboxd.com/$username/films/by/entry-rating/";
+$baseUrl = "https://letterboxd.com/$username/films/by/rating/";
 
 // First, get the total number of movies with ratings
 $countUrl = "https://letterboxd.com/$username/";
@@ -49,6 +66,7 @@ $movies = [];
 $page = 1;
 $totalPages = 0;
 $currentProgress = 0;
+$position = 1; // Counter for community rating position
 
 // Calculate total pages based on 72 movies per page
 $estimatedMoviesPerPage = 72;
@@ -121,8 +139,11 @@ while (true) {
             $movies[] = [
                 'title' => $title,
                 'url' => $url,
-                'user_rating' => $rating
+                'user_rating' => $rating,
+                'user_score' => convertRatingToScore($rating),
+                'community_position' => $position
             ];
+            $position++;
         }
     }
     
@@ -209,7 +230,8 @@ if ($http_code !== 404 && $popularHtml) {
                 $popularMovies[] = [
                     'title' => $title,
                     'url' => $url,
-                    'user_rating' => $rating
+                    'user_rating' => $rating,
+                    'user_score' => convertRatingToScore($rating)
                 ];
                 $count++;
             }
@@ -275,7 +297,8 @@ if ($totalPages > 0) {
                     $allMoviesOnPage[] = [
                         'title' => $title,
                         'url' => $url,
-                        'user_rating' => $rating
+                        'user_rating' => $rating,
+                        'user_score' => convertRatingToScore($rating)
                     ];
                 }
             }
@@ -349,7 +372,8 @@ if ($http_code !== 404 && $recentHtml) {
                 $recentMovies[] = [
                     'title' => $title,
                     'url' => $url,
-                    'user_rating' => $rating
+                    'user_rating' => $rating,
+                    'user_score' => convertRatingToScore($rating)
                 ];
                 $count++;
             }
@@ -415,7 +439,8 @@ if ($totalPages > 0) {
                     $allMoviesOnDatePage[] = [
                         'title' => $title,
                         'url' => $url,
-                        'user_rating' => $rating
+                        'user_rating' => $rating,
+                        'user_score' => convertRatingToScore($rating)
                     ];
                 }
             }
@@ -484,7 +509,8 @@ if ($http_code !== 404 && $recentReleaseHtml) {
                 $mostRecentReleaseMovies[] = [
                     'title' => $title,
                     'url' => $url,
-                    'user_rating' => $rating
+                    'user_rating' => $rating,
+                    'user_score' => convertRatingToScore($rating)
                 ];
                 $count++;
             }
@@ -550,7 +576,8 @@ if ($totalPages > 0) {
                     $allMoviesOnReleasePage[] = [
                         'title' => $title,
                         'url' => $url,
-                        'user_rating' => $rating
+                        'user_rating' => $rating,
+                        'user_score' => convertRatingToScore($rating)
                     ];
                 }
             }
@@ -566,141 +593,6 @@ echo "data: " . json_encode([
     'type' => 'progress',
     'progress' => 80,
     'message' => 'Least recent release movies analyzed'
-]) . "\n\n";
-
-// Now get the best community rated movies (from /films/by/rating/)
-$bestCommunityRateMovies = [];
-$bestCommunityUrl = "https://letterboxd.com/$username/films/by/rating/";
-
-$ch = curl_init($bestCommunityUrl);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-$bestCommunityHtml = curl_exec($ch);
-$http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-curl_close($ch);
-
-if ($http_code !== 404 && $bestCommunityHtml) {
-    libxml_use_internal_errors(true);
-    $dom = new DOMDocument();
-    $dom->loadHTML($bestCommunityHtml);
-    $xpath = new DOMXPath($dom);
-
-    $ul = $xpath->query('//ul[contains(@class, "poster-list")]')->item(0);
-    if ($ul) {
-        $liNodes = $xpath->query('.//li[contains(@class, "poster-container")]', $ul);
-        $count = 0;
-        
-        foreach ($liNodes as $li) {
-            if ($count >= N_BEST_COMMUNITY_RATE) break; // Only get first N_BEST_COMMUNITY_RATE
-            
-            $posterDiv = $xpath->query('.//div[contains(@class, "film-poster")]', $li)->item(0);
-            $title = null;
-            $url = null;
-            $rating = null;
-            
-            if ($posterDiv) {
-                $url = $posterDiv->getAttribute('data-target-link');
-                if ($url && strpos($url, 'http') !== 0) {
-                    $url = 'https://letterboxd.com' . $url;
-                }
-                $img = $xpath->query('.//img', $posterDiv)->item(0);
-                if ($img) {
-                    $title = $img->getAttribute('alt');
-                }
-            }
-            
-            // Get rating
-            $ratingSpan = $xpath->query('.//p[contains(@class, "poster-viewingdata")]/span[contains(@class, "rating")]', $li)->item(0);
-            $rating = $ratingSpan ? trim($ratingSpan->textContent) : '';
-            
-            // Include movie if we have title, url, and rating
-            if ($title && $url && !empty($rating)) {
-                $bestCommunityRateMovies[] = [
-                    'title' => $title,
-                    'url' => $url,
-                    'user_rating' => $rating
-                ];
-                $count++;
-            }
-        }
-    }
-}
-
-// Send progress update after best community rate (85%)
-echo "data: " . json_encode([
-    'type' => 'progress',
-    'progress' => 85,
-    'message' => 'Best community rated movies analyzed'
-]) . "\n\n";
-
-// Now get the worst community rated movies (from the last page of /films/by/rating/)
-$worstCommunityRateMovies = [];
-if ($totalPages > 0) {
-    $worstCommunityUrl = "https://letterboxd.com/$username/films/by/rating/page/$totalPages/";
-    
-    $ch = curl_init($worstCommunityUrl);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-    $worstCommunityHtml = curl_exec($ch);
-    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
-
-    if ($http_code !== 404 && $worstCommunityHtml) {
-        libxml_use_internal_errors(true);
-        $dom = new DOMDocument();
-        $dom->loadHTML($worstCommunityHtml);
-        $xpath = new DOMXPath($dom);
-
-        $ul = $xpath->query('//ul[contains(@class, "poster-list")]')->item(0);
-        if ($ul) {
-            $liNodes = $xpath->query('.//li[contains(@class, "poster-container")]', $ul);
-            $allMoviesOnCommunityPage = [];
-            
-            // Collect all movies from the last community rating page
-            foreach ($liNodes as $li) {
-                $posterDiv = $xpath->query('.//div[contains(@class, "film-poster")]', $li)->item(0);
-                $title = null;
-                $url = null;
-                $rating = null;
-                
-                if ($posterDiv) {
-                    $url = $posterDiv->getAttribute('data-target-link');
-                    if ($url && strpos($url, 'http') !== 0) {
-                        $url = 'https://letterboxd.com' . $url;
-                    }
-                    $img = $xpath->query('.//img', $posterDiv)->item(0);
-                    if ($img) {
-                        $title = $img->getAttribute('alt');
-                    }
-                }
-                
-                // Get rating
-                $ratingSpan = $xpath->query('.//p[contains(@class, "poster-viewingdata")]/span[contains(@class, "rating")]', $li)->item(0);
-                $rating = $ratingSpan ? trim($ratingSpan->textContent) : '';
-                
-                // Include movie if we have title, url, and rating
-                if ($title && $url && !empty($rating)) {
-                    $allMoviesOnCommunityPage[] = [
-                        'title' => $title,
-                        'url' => $url,
-                        'user_rating' => $rating
-                    ];
-                }
-            }
-            
-            // Get the last N_WORST_COMMUNITY_RATE movies with ratings from the page
-            $worstCommunityRateMovies = array_slice($allMoviesOnCommunityPage, -N_WORST_COMMUNITY_RATE);
-        }
-    }
-}
-
-// Send progress update after worst community rate (90%)
-echo "data: " . json_encode([
-    'type' => 'progress',
-    'progress' => 90,
-    'message' => 'Worst community rated movies analyzed'
 ]) . "\n\n";
 
 // Now get the best user rated movies (from /films/by/entry-rating/)
@@ -754,7 +646,8 @@ if ($http_code !== 404 && $bestUserHtml) {
                 $bestUserRateMovies[] = [
                     'title' => $title,
                     'url' => $url,
-                    'user_rating' => $rating
+                    'user_rating' => $rating,
+                    'user_score' => convertRatingToScore($rating)
                 ];
                 $count++;
             }
@@ -762,10 +655,10 @@ if ($http_code !== 404 && $bestUserHtml) {
     }
 }
 
-// Send progress update after best user rate (95%)
+// Send progress update after best user rate (85%)
 echo "data: " . json_encode([
     'type' => 'progress',
-    'progress' => 95,
+    'progress' => 85,
     'message' => 'Best user rated movies analyzed'
 ]) . "\n\n";
 
@@ -820,7 +713,8 @@ if ($totalPages > 0) {
                     $allMoviesOnUserPage[] = [
                         'title' => $title,
                         'url' => $url,
-                        'user_rating' => $rating
+                        'user_rating' => $rating,
+                        'user_score' => convertRatingToScore($rating)
                     ];
                 }
             }
@@ -831,10 +725,10 @@ if ($totalPages > 0) {
     }
 }
 
-// Send progress update after worst user rate (100%)
+// Send progress update after worst user rate (90%)
 echo "data: " . json_encode([
     'type' => 'progress',
-    'progress' => 100,
+    'progress' => 90,
     'message' => 'Worst user rated movies analyzed - Complete!'
 ]) . "\n\n";
 
@@ -856,8 +750,6 @@ echo "data: " . json_encode([
     'least_recent_rated' => $leastRecentMovies,
     'most_recent_release' => $mostRecentReleaseMovies,
     'least_recent_release' => $leastRecentReleaseMovies,
-    'best_community_rate' => $bestCommunityRateMovies,
-    'worst_community_rate' => $worstCommunityRateMovies,
     'best_user_rate' => $bestUserRateMovies,
     'worst_user_rate' => $worstUserRateMovies
 ]) . "\n\n";

@@ -47,11 +47,15 @@ function App() {
       }
       
             // Use Server-Sent Events for real progress
-      const eventSource = new EventSource(`https://yourmovietasteprobablysucks.com/php-backend/get-graph-data.php?username=${username}`);
+      const eventSourceUrl = `https://yourmovietasteprobablysucks.com/php-backend/get-graph-data-dissident.php?username=${username}`;
+      console.log('Creating EventSource with URL:', eventSourceUrl);
+      const eventSource = new EventSource(eventSourceUrl);
       
       eventSource.onmessage = function(event) {
+        console.log('EventSource message received:', event.data);
         try {
           const data = JSON.parse(event.data);
+          console.log('Parsed SSE data:', data);
           
           if (data.type === 'progress') {
             // Update progress with real data (but keep original totalMovies)
@@ -84,36 +88,78 @@ function App() {
           }
         } catch (err) {
           console.error('Error parsing SSE data:', err);
+          console.error('Raw SSE data:', event.data);
         }
+      };
+      
+      eventSource.onopen = function(event) {
+        console.log('EventSource opened successfully');
       };
       
       eventSource.onerror = function(event) {
         console.log('EventSource failed, using fallback');
+        console.log('EventSource error details:', event);
+        console.log('EventSource readyState:', eventSource.readyState);
         eventSource.close();
         
         // Fallback to regular fetch
-        fetch(`https://yourmovietasteprobablysucks.com/php-backend/get-graph-data.php?username=${username}`)
-          .then(res => res.json())
-          .then(data => {
-            if (data.all_movies && data.all_movies.length > 0) {
-              setMovies(data.all_movies);
+        fetch(`https://yourmovietasteprobablysucks.com/php-backend/get-graph-data-dissident.php?username=${username}`)
+          .then(res => {
+            console.log('Fetch response status:', res.status);
+            console.log('Fetch response headers:', res.headers);
+            return res.text();
+          })
+          .then(text => {
+            console.log('Raw response text:', text);
+            
+            // Handle SSE format (data: {...})
+            const lines = text.split('\n');
+            let lastData = null;
+            
+            for (const line of lines) {
+              if (line.startsWith('data: ')) {
+                try {
+                  const jsonStr = line.substring(6); // Remove 'data: ' prefix
+                  const data = JSON.parse(jsonStr);
+                  console.log('Parsed SSE data:', data);
+                  lastData = data;
+                  
+                  // Handle progress updates
+                  if (data.type === 'progress') {
+                    setProgress(data.progress);
+                    setProgressData(prev => ({
+                      ...prev,
+                      message: data.message,
+                      totalMovies: data.total_movies
+                    }));
+                  }
+                } catch (parseErr) {
+                  console.error('JSON parse error for line:', line, parseErr);
+                }
+              }
+            }
+            
+            // Handle final data
+            if (lastData && lastData.all_movies && lastData.all_movies.length > 0) {
+              setMovies(lastData.all_movies);
               setProgress(100);
               setProgressData(prev => ({
                 ...prev,
-                executionTime: data.execution_time_ms
+                executionTime: lastData.execution_time_ms
               }));
-              setGraphData(data);
+              setGraphData(lastData);
               setLoading(false);
-            } else if (data.error) {
-              setError(data.error);
+            } else if (lastData && lastData.error) {
+              setError(lastData.error);
               setLoading(false);
             } else {
-              setError('No movies found.');
+              setError('No movies found in response.');
               setLoading(false);
             }
           })
           .catch(err => {
-            setError('Network error.');
+            console.error('Fetch error:', err);
+            setError(`Network error: ${err.message}`);
             setLoading(false);
           });
       };
@@ -217,9 +263,16 @@ function App() {
                       <span className="text-[#bfae9f] font-semibold flex-1 min-w-0">
                         {movie.title}
                       </span>
-                      {movie.user_rating && (
-                        <span className="text-yellow-400 text-base font-mono flex-shrink-0">{movie.user_rating}</span>
-                      )}
+                      <div className="flex flex-col items-end gap-1 text-xs">
+                        {movie.user_rating && (
+                          <span className="text-yellow-400 font-mono">{movie.user_rating}</span>
+                        )}
+                        {movie.dissident_score !== undefined && (
+                          <span className={`font-mono ${movie.dissident_score > 0 ? 'text-green-400' : movie.dissident_score < 0 ? 'text-red-400' : 'text-gray-400'}`}>
+                            {movie.dissident_score > 0 ? '+' : ''}{movie.dissident_score}
+                          </span>
+                        )}
+                      </div>
                     </li>
                   ))}
                   

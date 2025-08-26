@@ -1,0 +1,22 @@
+{
+  "name": "catahouse",
+  "version": "1.0.0",
+  "description": "Web application for rating contests with multiple categories",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && npm run dev",
+    "build": "cd frontend && npm run build",
+    "build:deploy": "npm run build && npm run deploy",
+    "deploy": "echo 'Deploy to IONOS'",
+    "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install",
+    "start": "cd backend && npm start"
+  },
+  "keywords": ["contest", "rating", "cata", "webapp"],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+} 

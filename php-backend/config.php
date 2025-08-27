@@ -67,4 +67,4 @@ function sendErrorResponse($message, $statusCode = 400) {
         'timestamp' => date('Y-m-d H:i:s')
     ], $statusCode);
 }
-?> 
+ 

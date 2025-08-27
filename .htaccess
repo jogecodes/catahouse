@@ -1,5 +1,16 @@
 # Force HTTPS redirect
 RewriteEngine On
+
+# Ensure root index.html is used
+DirectoryIndex index.html
+
+# Prevent any redirects to /frontend by rewriting back to root
+RewriteCond %{REQUEST_URI} ^/frontend/?$ [NC]
+RewriteRule ^frontend/?$ / [R=301,L]
+
+# Avoid Apache MultiViews unexpected redirects
+Options -MultiViews
+
 RewriteCond %{HTTPS} off
 RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 

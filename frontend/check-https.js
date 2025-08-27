@@ -1,6 +1,6 @@
 import fetch from 'node-fetch';
 
-const SITE_URL = 'https://yourmovietasteprobablysucks.com';
+const SITE_URL = 'https://catahouse.yourmovietasteprobablysucks.com';
 
 async function checkHTTPS() {
   console.log('🔒 Checking HTTPS enforcement...\n');
@@ -8,7 +8,7 @@ async function checkHTTPS() {
   try {
     // Test HTTP to HTTPS redirect
     console.log('1. Testing HTTP to HTTPS redirect...');
-    const httpResponse = await fetch(`http://yourmovietasteprobablysucks.com`, {
+    const httpResponse = await fetch(`http://catahouse.yourmovietasteprobablysucks.com`, {
       redirect: 'manual'
     });
     

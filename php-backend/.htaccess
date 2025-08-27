@@ -1,0 +1,37 @@
+# Enable rewrite engine
+RewriteEngine On
+
+# Security headers
+Header always set X-Content-Type-Options nosniff
+Header always set X-Frame-Options DENY
+Header always set X-XSS-Protection "1; mode=block"
+Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+# Force HTTPS (uncomment if you have SSL)
+# RewriteCond %{HTTPS} off
+# RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Handle CORS preflight
+RewriteCond %{REQUEST_METHOD} OPTIONS
+RewriteRule ^(.*)$ $1 [R=200,L]
+
+# Prevent access to sensitive files
+<Files "*.log">
+    Order allow,deny
+    Deny from all
+</Files>
+
+<Files "config.php">
+    Order allow,deny
+    Deny from all
+</Files>
+
+# Custom error pages
+ErrorDocument 404 /php-backend/404.php
+ErrorDocument 500 /php-backend/500.php
+
+# PHP settings
+php_value upload_max_filesize 10M
+php_value post_max_size 10M
+php_value max_execution_time 30
+php_value memory_limit 128M 

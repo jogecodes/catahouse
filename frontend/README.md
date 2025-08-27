@@ -1,12 +1,59 @@
-# React + Vite
+# IONOS Hello World Template
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A clean, minimal template for building websites on IONOS hosting with React frontend and PHP backend.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **React Frontend**: Modern React 18 with Vite build system
+- **PHP Backend**: Ready-to-implement PHP backend structure
+- **Build Tools**: Includes useful utilities for deployment and HTTPS checking
+- **IONOS Ready**: Optimized for IONOS hosting environment
 
-## Expanding the ESLint configuration
+## Quick Start
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+1. **Install dependencies:**
+   ```bash
+   cd frontend
+   npm install
+   ```
+
+2. **Start development server:**
+   ```bash
+   npm run dev
+   ```
+
+3. **Build for production:**
+   ```bash
+   npm run build
+   ```
+
+## Project Structure
+
+```
+├── frontend/           # React frontend application
+│   ├── src/           # Source code
+│   ├── public/        # Static assets
+│   └── build tools    # Deployment and utility scripts
+├── php-backend/       # PHP backend files
+└── index.html         # Main entry point
+```
+
+## Build Tools
+
+- **clean-build.js**: Cleans old build files before building
+- **check-https.js**: Verifies HTTPS enforcement and security headers
+- **deploy.js**: Automated deployment script
+
+## PHP Backend
+
+The `php-backend/` directory contains example PHP files ready for your implementation.
+
+## Deployment
+
+1. Build the frontend: `npm run build`
+2. Upload the `dist/` folder and `php-backend/` to your IONOS hosting
+3. Configure your domain to point to the uploaded files
+
+## License
+
+MIT License - feel free to use this template for your projects!

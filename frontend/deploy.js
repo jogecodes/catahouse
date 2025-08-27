@@ -5,19 +5,20 @@ import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const projectRoot = path.dirname(__dirname);
 
-// SFTP configuration (matching your .vscode/sftp.json)
+// SFTP configuration for catahouse.yourmovietasteprobablysucks.com
 const config = {
   host: 'access-5018272229.webspace-host.com',
   port: 22,
   username: 'a832137',
   password: '%Lbm?$VsL*Yxwm2',
-  remotePath: '/dev/'
+  remotePath: '/' // Upload built files to root directory
 };
 
 const client = new Client();
 
-console.log('🚀 Starting deployment...');
+console.log('🚀 Starting deployment to catahouse.yourmovietasteprobablysucks.com...');
 
 client.on('ready', () => {
   console.log('✅ Connected to IONOS');
@@ -30,10 +31,9 @@ client.on('ready', () => {
     }
 
     const filesToUpload = [
-      { local: '../index.html', remote: 'index.html' },
-      { local: '../assets', remote: 'assets', isDir: true },
-      { local: '../.htaccess', remote: '.htaccess' },
-      { local: '../php-backend', remote: 'php-backend', isDir: true }
+      { local: 'dist/index.html', remote: 'index.html' },           // index.html to root
+      { local: 'dist/assets', remote: 'assets', isDir: true },      // assets folder to root
+      { local: path.join(projectRoot, 'php-backend'), remote: 'php-backend', isDir: true } // PHP backend
     ];
 
     let uploadedCount = 0;
@@ -42,6 +42,8 @@ client.on('ready', () => {
     const uploadNext = (index) => {
       if (index >= filesToUpload.length) {
         console.log('🎉 Deployment complete!');
+        console.log('🌐 Your site is now live at: https://catahouse.yourmovietasteprobablysucks.com');
+        console.log('🔧 PHP backend available at: https://catahouse.yourmovietasteprobablysucks.com/php-backend/');
         client.end();
         return;
       }

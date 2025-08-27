@@ -21,13 +21,13 @@ export default function Synthesis() {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-2xl font-semibold tracking-tight">Síntesis</h2>
+      <h2 className="text-2xl font-semibold tracking-tight">Ranking</h2>
       <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
         <table className="min-w-full text-sm">
           <thead className="bg-slate-50 text-slate-700">
             <tr>
               <th className="border-b border-slate-200 px-3 py-2 text-left">Puesto</th>
-              <th className="border-b border-slate-200 px-3 py-2 text-left">Ítem</th>
+              <th className="border-b border-slate-200 px-3 py-2 text-left">Sidra</th>
               {categories.map(cat => (
                 <th key={cat.id} className="border-b border-slate-200 px-3 py-2 text-left">{cat.name}</th>
               ))}

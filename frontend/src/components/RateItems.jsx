@@ -18,14 +18,138 @@ function StarInput({ value, onChange }) {
       {[1,2,3,4,5].map(n => (
         <button
           key={n}
-          className={`w-9 h-9 rounded-md border border-slate-200 ${value >= n ? 'bg-yellow-300' : 'bg-white'} hover:bg-yellow-200`}
-          onClick={() => onChange(n)}
+          className="w-8 h-8 p-0 border-0 bg-transparent hover:scale-110 transition-transform"
+          onClick={() => onChange(value === n ? null : n)}
           type="button"
         >
-          {n}
+          <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            viewBox="0 0 24 24" 
+            fill={value >= n ? "currentColor" : "none"}
+            className={`w-8 h-8 ${value >= n ? 'text-yellow-400' : 'text-gray-300'} hover:text-yellow-300`}
+            stroke="currentColor"
+            strokeWidth="1.5"
+          >
+            <path 
+              strokeLinecap="round" 
+              strokeLinejoin="round" 
+              d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.563.563 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" 
+            />
+          </svg>
         </button>
       ))}
-      <button className="w-9 h-9 rounded-md border border-slate-200 hover:bg-slate-100" onClick={() => onChange(null)} type="button">×</button>
+    </div>
+  )
+}
+
+function SidraSelection({ items, onSelectSidra, ratings }) {
+  return (
+    <div className="space-y-4">
+      <h2 className="text-2xl font-semibold tracking-tight">Elige la sidra a valorar</h2>
+      <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
+        {items.map(item => {
+          const itemRatings = ratings[item.id] || {}
+          const completedCategories = Object.keys(itemRatings).length
+          const totalCategories = 3 // Asumiendo 3 categorías fijas
+          const isComplete = completedCategories === totalCategories
+          
+          return (
+            <button
+              key={item.id}
+              onClick={() => onSelectSidra(item)}
+              className="w-full text-left border border-slate-200 rounded-xl p-4 bg-white hover:shadow-md transition-shadow focus:ring-2 focus:ring-sky-300"
+            >
+              <div className="font-semibold mb-2">{item.name}</div>
+              <div className="text-sm text-slate-600">
+                {isComplete ? (
+                  <span className="text-green-600">✓ Completada</span>
+                ) : (
+                  <span className="text-amber-600">
+                    {completedCategories}/{totalCategories} categorías
+                  </span>
+                )}
+              </div>
+            </button>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+function SidraRating({ sidra, categories, ratings, onBack, onSave }) {
+  const [currentRatings, setCurrentRatings] = useState(ratings[sidra.id] || {})
+  const [saving, setSaving] = useState(false)
+  const [message, setMessage] = useState('')
+
+  async function updateRating(categoryId, value) {
+    const newRatings = {
+      ...currentRatings,
+      [categoryId]: value,
+    }
+    setCurrentRatings(newRatings)
+    
+    setSaving(true)
+    setMessage('')
+    try {
+      const res = await fetch(`${API_BASE}?action=setUserRatings`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          user: localStorage.getItem('selectedUser'), 
+          ratings: { [sidra.id]: newRatings } 
+        })
+      }).then(r => r.json())
+      
+      if (res.success) {
+        setMessage('¡Guardado!')
+        setTimeout(() => setMessage(''), 2000)
+        onSave(sidra.id, newRatings)
+      } else {
+        setMessage('Error al guardar')
+        setTimeout(() => setMessage(''), 3000)
+      }
+    } catch (_) {
+      setMessage('Error al guardar')
+      setTimeout(() => setMessage(''), 3000)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center gap-4 mb-6">
+        <button
+          onClick={onBack}
+          className="px-3 py-2 text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-md transition-colors"
+        >
+          ← Volver
+        </button>
+        <h2 className="text-2xl font-semibold tracking-tight">Valorar: {sidra.name}</h2>
+      </div>
+      
+      <div className="space-y-6">
+        {categories.map(cat => (
+          <div key={cat.id} className="border border-slate-200 rounded-xl p-4 bg-white shadow-sm">
+            <div className="flex items-center justify-between gap-4">
+              <h3 className="font-semibold text-lg">{cat.name}</h3>
+              <StarInput 
+                value={currentRatings[cat.id] ?? null} 
+                onChange={(v) => updateRating(cat.id, v)} 
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+      
+      {message && (
+        <div className="mt-4 text-center">
+          <span className={`px-3 py-2 rounded-md text-sm ${message.includes('Error') ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
+            {message}
+          </span>
+        </div>
+      )}
     </div>
   )
 }
@@ -35,8 +159,7 @@ export default function RateItems() {
   const [categories, setCategories] = useState([])
   const [ratings, setRatings] = useState({})
   const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
-  const [message, setMessage] = useState('')
+  const [selectedSidra, setSelectedSidra] = useState(null)
 
   const user = localStorage.getItem('selectedUser') || ''
   const userNameStored = localStorage.getItem('selectedUserName') || ''
@@ -55,63 +178,36 @@ export default function RateItems() {
     load().catch(() => setLoading(false))
   }, [user])
 
-  function updateRating(itemId, categoryId, value) {
+  function handleSaveSidra(sidraId, newRatings) {
     setRatings(prev => ({
       ...prev,
-      [itemId]: {
-        ...(prev[itemId] || {}),
-        [categoryId]: value,
-      }
+      [sidraId]: newRatings
     }))
   }
 
-  async function save() {
-    if (!user) {
-      setMessage('Selecciona un usuario primero')
-      return
-    }
-    setSaving(true)
-    setMessage('')
-    try {
-      const res = await fetch(`${API_BASE}?action=setUserRatings`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user, ratings })
-      }).then(r => r.json())
-      if (res.success) setMessage('¡Guardado!')
-      else setMessage('Error al guardar')
-    } catch (_) {
-      setMessage('Error al guardar')
-    } finally {
-      setSaving(false)
-    }
-  }
-
   if (loading) return <div>Cargando...</div>
+  if (!user) return <div className="text-red-600">No hay usuario seleccionado</div>
+
+  if (selectedSidra) {
+    return (
+      <SidraRating
+        sidra={selectedSidra}
+        categories={categories}
+        ratings={ratings}
+        onBack={() => setSelectedSidra(null)}
+        onSave={handleSaveSidra}
+      />
+    )
+  }
 
   return (
     <div className="space-y-4">
-      <h2 className="text-2xl font-semibold tracking-tight">Valorar ítems {user ? `(Usuario: ${userName})` : ''}</h2>
-      {!user && <div className="text-red-600">No hay usuario seleccionado</div>}
-      <div className="grid gap-4 md:grid-cols-2">
-        {items.map(item => (
-          <div key={item.id} className="border border-slate-200 rounded-xl p-4 bg-white shadow-sm">
-            <h3 className="font-semibold mb-3">{item.name}</h3>
-            <div className="space-y-2">
-              {categories.map(cat => (
-                <div key={cat.id} className="flex items-center justify-between gap-4">
-                  <div className="text-sm text-slate-700">{cat.name}</div>
-                  <StarInput value={(ratings[item.id]||{})[cat.id] ?? null} onChange={(v) => updateRating(item.id, cat.id, v)} />
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
-      <div className="mt-2 flex items-center gap-3">
-        <button className="inline-flex items-center justify-center rounded-md border border-slate-200 bg-white px-4 py-2 hover:bg-slate-100 disabled:opacity-50" onClick={save} disabled={saving}>Guardar</button>
-        {message && <span className="text-slate-600">{message}</span>}
-      </div>
+      <h2 className="text-2xl font-semibold tracking-tight">Valorar sidras {user ? `(Usuario: ${userName})` : ''}</h2>
+      <SidraSelection 
+        items={items} 
+        onSelectSidra={setSelectedSidra}
+        ratings={ratings}
+      />
     </div>
   )
 } 

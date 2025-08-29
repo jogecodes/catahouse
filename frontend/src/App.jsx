@@ -12,7 +12,7 @@ function App() {
       <div className="min-h-screen bg-gradient-to-b from-sky-50 to-white text-gray-800">
         <header className="sticky top-0 z-10 backdrop-blur bg-white/70 border-b border-slate-200">
           <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
-            <h1 className="text-xl font-semibold tracking-tight">Catajús 2025</h1>
+            <img src="public/logo-cata.png" alt="Cata-jús 2025" className="h-8" />
             <div className="flex items-center gap-2">
               <button
                 className="md:hidden inline-flex items-center justify-center rounded-md border border-slate-300 px-2.5 py-2 text-slate-700 hover:bg-slate-100"

@@ -51,7 +51,7 @@ export default function UserSelect() {
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="text-2xl font-semibold tracking-tight">Elige tu usuario</h2>
+        <h2 className="text-2xl font-semibold tracking-tight">¿Quién eres?</h2>
         {currentId && (
           <div className="mt-1 text-sm text-slate-600">Actual: <strong>{currentName}</strong></div>
         )}
@@ -63,7 +63,7 @@ export default function UserSelect() {
           <li key={u.id} className="">
             <button className="w-full text-left border border-slate-200 rounded-lg px-4 py-3 bg-white hover:shadow-sm focus:ring-2 focus:ring-sky-300"
               onClick={() => onSelect(u.id)}>
-              <div className="font-medium">{u.name || toTitleCase(u.id)}</div>
+              <div className="font-medium">{u.name || u.id}</div>
               <div className="text-xs text-slate-500">Pulsa para seleccionar</div>
             </button>
           </li>

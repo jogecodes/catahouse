@@ -50,7 +50,7 @@ function SidraSelection({ items, onSelectSidra, ratings }) {
         {items.map(item => {
           const itemRatings = ratings[item.id] || {}
           const completedCategories = Object.keys(itemRatings).length
-          const totalCategories = 3 // Asumiendo 3 categorías fijas
+          const totalCategories = 5 // Ahora son 5 categorías
           const isComplete = completedCategories === totalCategories
           
           return (
@@ -132,8 +132,11 @@ function SidraRating({ sidra, categories, ratings, onBack, onSave }) {
       <div className="space-y-6">
         {categories.map(cat => (
           <div key={cat.id} className="border border-slate-200 rounded-xl p-4 bg-white shadow-sm">
-            <div className="flex items-center justify-between gap-4">
-              <h3 className="font-semibold text-lg">{cat.name}</h3>
+            <div className="mb-3">
+              <h3 className="font-semibold text-lg mb-2">{cat.name}</h3>
+              <p className="text-sm text-slate-600 italic">{cat.description}</p>
+            </div>
+            <div className="flex justify-end">
               <StarInput 
                 value={currentRatings[cat.id] ?? null} 
                 onChange={(v) => updateRating(cat.id, v)} 

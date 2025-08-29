@@ -1,5 +1,7 @@
 [
-  { "id": "quality", "name": "Calidad" },
-  { "id": "design", "name": "Diseño" },
-  { "id": "value", "name": "Valor" }
+  { "id": "sabor", "name": "👅 Sabor", "description": "¿Sabe a gloria astur o a refresco caducado?" },
+  { "id": "olor", "name": "👃 Olor", "description": "¿Huele fresca y natural, o más bien a colonia barata?" },
+  { "id": "regustillo", "name": "🤤 Regustillo", "description": "¿Deja un final feliz… o un recuerdo que no pediste?" },
+  { "id": "tragabilidad", "name": "🍺 Tragabilidad", "description": "¿Se bebe como agua fría, o es todo un reto?" },
+  { "id": "marketing", "name": "💅 Marketing", "description": "¿Te hace sentir todo fancy beberla?" }
 ] 

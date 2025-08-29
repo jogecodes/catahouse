@@ -21,7 +21,7 @@ export default function Synthesis() {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-2xl font-semibold tracking-tight">Ranking</h2>
+      <h2 className="text-2xl font-semibold tracking-tight">Ranking: escanciando la verdad</h2>
       <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
         <table className="min-w-full text-sm">
           <thead className="bg-slate-50 text-slate-700">
@@ -29,7 +29,7 @@ export default function Synthesis() {
               <th className="border-b border-slate-200 px-3 py-2 text-left">Puesto</th>
               <th className="border-b border-slate-200 px-3 py-2 text-left">Sidra</th>
               {categories.map(cat => (
-                <th key={cat.id} className="border-b border-slate-200 px-3 py-2 text-left">{cat.name}</th>
+                <th key={cat.id} className="border-b border-slate-200 px-3 py-2 text-center">{cat.name.split(' ')[0]}</th>
               ))}
               <th className="border-b border-slate-200 px-3 py-2 text-left">Global</th>
             </tr>
@@ -40,7 +40,7 @@ export default function Synthesis() {
                 <td className="px-3 py-2">{idx + 1}</td>
                 <td className="px-3 py-2">{it.name}</td>
                 {categories.map(cat => (
-                  <td key={cat.id} className="px-3 py-2">{it.averages?.[cat.id]?.toFixed ? it.averages[cat.id].toFixed(2) : '-'}</td>
+                  <td key={cat.id} className="px-3 py-2 text-center">{it.averages?.[cat.id]?.toFixed ? it.averages[cat.id].toFixed(2) : '-'}</td>
                 ))}
                 <td className="px-3 py-2 font-semibold">{it.overall?.toFixed ? it.overall.toFixed(2) : '-'}</td>
               </tr>

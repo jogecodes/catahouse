@@ -38,8 +38,9 @@ client.on('ready', () => {
     const remoteAssets = config.remotePath + 'assets';
     const remoteBackend = config.remotePath + 'php-backend';
     const filesToUpload = [
-      { local: path.resolve(__dirname, '../assets'), remote: remoteAssets, isDir: true, cleanBefore: true },
-      { local: path.join(projectRoot, 'php-backend'), remote: remoteBackend, isDir: true },
+      { local: path.resolve(__dirname, '../public'), remote: config.remotePath + 'public', isDir: true },
+      { local: path.resolve(__dirname, '../assets'), remote: config.remotePath + 'assets', isDir: true },
+      { local: path.join(projectRoot, 'php-backend'), remote: config.remotePath + 'php-backend', isDir: true },
       { local: path.resolve(__dirname, '../index.html'), remote: config.remotePath + 'index.html' }
     ];
 

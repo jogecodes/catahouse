@@ -1,8 +1,21 @@
+<<<<<<< HEAD
 .loading {
+=======
+.App {
+  text-align: center;
+}
+
+.App-header {
+  background-color: #282c34;
+  padding: 20px;
+  color: white;
+  min-height: 100vh;
+>>>>>>> 9988d1613fcae282d84e6e56ef9c42f2f9bee99a
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+<<<<<<< HEAD
   height: 100vh;
   gap: 1rem;
 }
@@ -176,3 +189,11 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
 } 
+=======
+  font-size: calc(10px + 2vmin);
+}
+
+.App-link {
+  color: #61dafb;
+}
+>>>>>>> 9988d1613fcae282d84e6e56ef9c42f2f9bee99a

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # .htaccess para catahouse.yourmovietasteprobablysucks.com
 # Configuración para API PHP y Single Page Application
 
@@ -58,3 +59,13 @@ RewriteRule ^(.*)$ /index.html [L]
     Header always set X-XSS-Protection "1; mode=block"
     Header always set Referrer-Policy "strict-origin-when-cross-origin"
 </IfModule> 
+=======
+# SPA fallback using ErrorDocument (no mod_rewrite needed)
+DirectoryIndex index.html
+
+# Redirect known app routes to index.html (helps some shared hosts)
+RedirectMatch 302 ^/(rate|synthesis)$ /index.html
+
+# As a universal fallback: when a 404 happens, serve index.html
+ErrorDocument 404 /index.html 
+>>>>>>> 9988d1613fcae282d84e6e56ef9c42f2f9bee99a

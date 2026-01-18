@@ -1,0 +1,15 @@
+[
+  { "id": "trabanco", "name": "Trabanco" },
+  { "id": "trabanco-seleccion", "name": "Trabanco Selección" },
+  { "id": "vallina", "name": "Vallina" },
+  { "id": "el-carrascu", "name": "El Carrascu" },
+  { "id": "castanon", "name": "Castañón" },
+  { "id": "polian", "name": "Polían" },
+  { "id": "viuda-angelon", "name": "Viuda de Angelón" },
+  { "id": "cortina", "name": "Cortina" },
+  { "id": "prau-monga", "name": "Prau Monga" },
+  { "id": "cabuenes", "name": "Cabueñes" },
+  { "id": "el-gobernador", "name": "El Gobernador" },
+  { "id": "riestra", "name": "Riestra" },
+  { "id": "covadonga", "name": "Covadonga" }
+] 

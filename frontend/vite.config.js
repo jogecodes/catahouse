@@ -4,6 +4,7 @@ import react from '@vitejs/plugin-react'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
+<<<<<<< HEAD
   server: {
     port: 3000,
     proxy: {
@@ -29,3 +30,14 @@ export default defineConfig({
     }
   }
 }) 
+=======
+  build: {
+    outDir: '../',
+    emptyOutDir: false,
+    rollupOptions: {
+      input: { main: './index.html' }
+    }
+  },
+  publicDir: false
+})
+>>>>>>> 9988d1613fcae282d84e6e56ef9c42f2f9bee99a

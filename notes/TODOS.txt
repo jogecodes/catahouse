@@ -1,0 +1,9 @@
+-> Mirar si podemos balancear la popularidad de una película en base al país
+-> Estructura del prompt por secciones:
+    - Una intro en la que se roastea por número de pelis vistas y por distribución de las notas que ha dado
+    - Una sección en la que se roastea por las pelis que más le han gustado
+    - Una sección en la que se roastea por las pelos que menos le han gustado
+    - Una sección en la que se roastea por las pelis más populares que ha visto 
+    - Una sección en la que se roastea por las pelis menos populares que ha visto
+    - Una sección en la que se roastea por las notas más "a contracorriente" (diferentes de lo que la gente suele pensar) que ha dado
+    - Una conclusión con el perfil detallado

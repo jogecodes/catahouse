@@ -1,0 +1,9 @@
+# Minimal .htaccess for shared hosting compatibility
+# Keep it simple to avoid 500 errors from disallowed directives
+
+<IfModule mod_rewrite.c>
+RewriteEngine On
+# Allow CORS preflight to return 200 directly
+RewriteCond %{REQUEST_METHOD} OPTIONS
+RewriteRule ^ - [R=200,L]
+</IfModule> 

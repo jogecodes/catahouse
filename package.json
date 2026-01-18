@@ -8,7 +8,10 @@
     "dev:frontend": "cd frontend && npm run dev",
     "dev:backend": "cd backend && npm run dev",
     "build": "cd frontend && npm run build",
-    "build:deploy": "npm run build && npm run deploy",
+    "build:deploy": "npm run build && npm run copy-assets && npm run clean-build",
+    "deploy-sftp": "node scripts/deploy-sftp.js",
+    "copy-assets": "cp frontend/dist/index.html . && cp -r frontend/dist/assets . && echo '✅ Assets copied to root'",
+    "clean-build": "echo '🚀 Ready for SFTP upload! Save any file to trigger automatic upload.'",
     "deploy": "echo 'Deploy to IONOS'",
     "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install",
     "start": "cd backend && npm start"

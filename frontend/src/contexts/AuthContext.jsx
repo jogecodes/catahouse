@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
-import axios from 'axios'
+import { api } from '../lib/api'
 
 const AuthContext = createContext()
 
@@ -15,20 +15,32 @@ export function AuthProvider({ children }) {
     // Check if user is logged in on app start
     const token = localStorage.getItem('token')
     if (token) {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
       checkAuthStatus()
     } else {
       setLoading(false)
     }
   }, [])
 
+  const buildErrorMessage = (error, fallback) => {
+    // Axios error shape: response (server replied), request (no reply), message (config/runtime)
+    if (error?.response) {
+      const status = error.response.status
+      const data = error.response.data
+      const backendMsg = (typeof data === 'string') ? data : (data?.message || data?.error)
+      return `HTTP ${status}${backendMsg ? ` · ${backendMsg}` : ''}`
+    }
+    if (error?.request) {
+      return 'Sin respuesta del servidor (revisa la URL del API y CORS)'
+    }
+    return fallback || 'Error desconocido'
+  }
+
   const checkAuthStatus = async () => {
     try {
-      const response = await axios.get('/api/auth/me')
+      const response = await api.get('/auth/me')
       setUser(response.data.user)
     } catch (error) {
       localStorage.removeItem('token')
-      delete axios.defaults.headers.common['Authorization']
     } finally {
       setLoading(false)
     }
@@ -36,47 +48,38 @@ export function AuthProvider({ children }) {
 
   const login = async (username, password) => {
     try {
-      const response = await axios.post('/api/auth/login', {
+      const response = await api.post('/auth/login', {
         username,
         password
       })
-      
       const { token, user } = response.data
       localStorage.setItem('token', token)
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
       setUser(user)
       return { success: true }
     } catch (error) {
-      return { 
-        success: false, 
-        error: error.response?.data?.message || 'Error de login' 
-      }
+      const message = buildErrorMessage(error, 'Error de login')
+      return { success: false, error: message }
     }
   }
 
   const register = async (username, password) => {
     try {
-      const response = await axios.post('/api/auth/register', {
+      const response = await api.post('/auth/register', {
         username,
         password
       })
-      
       const { token, user } = response.data
       localStorage.setItem('token', token)
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
       setUser(user)
       return { success: true }
     } catch (error) {
-      return { 
-        success: false, 
-        error: error.response?.data?.message || 'Error de registro' 
-      }
+      const message = buildErrorMessage(error, 'Error de registro')
+      return { success: false, error: message }
     }
   }
 
   const logout = () => {
     localStorage.removeItem('token')
-    delete axios.defaults.headers.common['Authorization']
     setUser(null)
   }
 
